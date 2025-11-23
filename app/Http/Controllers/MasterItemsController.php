@@ -12,6 +12,11 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class MasterItemsController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
     public function index()
     {
         $kategori = \App\Models\KategoriItem::orderBy('nama')->get();

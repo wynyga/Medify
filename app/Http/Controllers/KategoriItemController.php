@@ -8,6 +8,10 @@ use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 
 class KategoriItemController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     // =========================
     // LIST + FILTER
     // =========================

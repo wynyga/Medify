@@ -2,41 +2,71 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
-use App\Http\Controllers\KategoriItemController;
+use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MasterItemsController; 
+use App\Http\Controllers\KategoriItemController; 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
 */
 
+// ========================================================================
+// PUBLIC & AUTH
+// ========================================================================
 Route::get('/', function () {
     return view('welcome');
 });
 
 Auth::routes();
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-Route::get('/master-items', [App\Http\Controllers\MasterItemsController::class, 'index']);
-Route::get('/master-items/search', [App\Http\Controllers\MasterItemsController::class, 'search']);
-Route::get('/master-items/form/{method}/{id?}', [App\Http\Controllers\MasterItemsController::class, 'formView']);
-Route::post('/master-items/form/{method}/{id?}', [App\Http\Controllers\MasterItemsController::class, 'formSubmit']);
-Route::get('/master-items/view/{kode}', [App\Http\Controllers\MasterItemsController::class, 'singleView']);
-Route::get('/master-items/delete/{id}', [App\Http\Controllers\MasterItemsController::class, 'delete']);
-Route::get('/master-items/update-random-data', [App\Http\Controllers\MasterItemsController::class, 'updateRandomData']);
-Route::get('master-items/export/excel', [App\Http\Controllers\MasterItemsController::class, 'exportExcel']);
 
-Route::get('kategori-items', [KategoriItemController::class, 'index']);
-Route::get('kategori-items/create', [KategoriItemController::class, 'create']); 
-Route::post('kategori-items/store', [KategoriItemController::class, 'store']);
-Route::get('kategori-items/edit/{id}', [KategoriItemController::class, 'edit']);
-Route::post('kategori-items/update/{id}', [KategoriItemController::class, 'update']);
-Route::get('kategori-items/delete/{id}', [KategoriItemController::class, 'delete']);
-Route::get('kategori-items/show/{id}', [KategoriItemController::class, 'show']);
-Route::get('kategori-items/print/{id}', [KategoriItemController::class, 'printPdf']);
+// ========================================================================
+// GROUP: MASTER ITEMS
+// ========================================================================
+Route::prefix('master-items')->group(function () {
+    
+    // List & Search
+    Route::get('/', [MasterItemsController::class, 'index']);
+    Route::get('/search', [MasterItemsController::class, 'search']);
+    
+    // Fitur Tambahan (Export & Random Data)
+    // Ditaruh di atas route parameter agar tidak konflik
+    Route::get('/update-random-data', [MasterItemsController::class, 'updateRandomData']);
+    Route::get('/export/excel', [MasterItemsController::class, 'exportExcel']);
+    
+    // Single View & Actions
+    Route::get('/view/{kode}', [MasterItemsController::class, 'singleView']);
+    Route::get('/delete/{id}', [MasterItemsController::class, 'delete']);
+    
+    // Form Create/Edit
+    Route::get('/form/{method}/{id?}', [MasterItemsController::class, 'formView']);
+    Route::post('/form/{method}/{id?}', [MasterItemsController::class, 'formSubmit']);
+});
+
+
+// ========================================================================
+// GROUP: KATEGORI ITEMS
+// ========================================================================
+Route::prefix('kategori-items')->group(function () {
+    
+    // List
+    Route::get('/', [KategoriItemController::class, 'index']);
+    
+    // Create
+    Route::get('/create', [KategoriItemController::class, 'create']);
+    Route::post('/store', [KategoriItemController::class, 'store']);
+    
+    // Edit
+    Route::get('/edit/{id}', [KategoriItemController::class, 'edit']);
+    Route::post('/update/{id}', [KategoriItemController::class, 'update']);
+    
+    // Actions
+    Route::get('/delete/{id}', [KategoriItemController::class, 'delete']);
+    Route::get('/show/{id}', [KategoriItemController::class, 'show']);
+    
+    // Print PDF
+    Route::get('/print/{id}', [KategoriItemController::class, 'printPdf']);
+});
