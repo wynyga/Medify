@@ -8,7 +8,13 @@
                 <a href="{{ url('kategori-items') }}" class="btn btn-secondary">Kembali ke Daftar</a>
             </div>
             <div class="card">
-                <div class="card-header">Detail Kategori</div>
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Detail Kategori</span>
+                    {{-- TOMBOL DOWNLOAD PDF --}}
+                    <a href="{{ url('kategori-items/print/' . $kategori->id) }}" class="btn btn-sm btn-danger" target="_blank">
+                        <i class="fa fa-file-pdf"></i> Download PDF
+                    </a>
+                </div>
 
                 <div class="card-body">
                     {{-- Detail Kategori --}}

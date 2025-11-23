@@ -38,7 +38,7 @@ Route::get('kategori-items/edit/{id}', [KategoriItemController::class, 'edit']);
 Route::post('kategori-items/update/{id}', [KategoriItemController::class, 'update']);
 Route::get('kategori-items/delete/{id}', [KategoriItemController::class, 'delete']);
 Route::get('kategori-items/show/{id}', [KategoriItemController::class, 'show']);
-
+Route::get('kategori-items/print/{id}', [KategoriItemController::class, 'printPdf']);
 // //route groub
 // Route::prefix('/kategori-items')->group(function () {
 

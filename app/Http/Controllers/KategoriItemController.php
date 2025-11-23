@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\KategoriItem;
-use App\Models\MasterItem;
+use Barryvdh\DomPDF\Facade\Pdf as FacadePdf;
 
 class KategoriItemController extends Controller
 {
@@ -111,6 +111,20 @@ class KategoriItemController extends Controller
         $kategori = KategoriItem::with('items')->findOrFail($id); 
         $items = $kategori->items;
         return view('kategori_items.single', compact('kategori', 'items'));
+    }
+
+    // =========================
+    // PRINT PDF
+    // =========================
+    public function printPdf($id)
+    {
+        $kategori = KategoriItem::with('items')->findOrFail($id);
+        $items = $kategori->items;
+    
+        $pdf = FacadePdf::loadView('kategori_items.pdf', compact('kategori', 'items'));
+        $pdf->setPaper('A4', 'portrait');
+    
+        return $pdf->download('Laporan_Kategori_' . $kategori->kode . '.pdf');
     }
 
 }
