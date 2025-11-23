@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\MasterItem;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 
 class MasterItemsController extends Controller
 {
@@ -25,7 +26,7 @@ class MasterItemsController extends Controller
         if (!empty($nama)) $data_search = $data_search->where('nama', 'LIKE', '%' . $nama . '%');
         if (!empty($hargamin)) $data_search = $data_search->where('harga_beli', '>=', $hargamin);
         if (!empty($hargamax)) $data_search = $data_search->where('harga_beli', '<=', $hargamax);
-        $data_search = $data_search->select('kode', 'nama', 'jenis', 'harga_beli', 'laba', 'supplier')->orderBy('id')->get();
+        $data_search = $data_search->select('kode', 'nama', 'jenis', 'harga_beli', 'laba', 'supplier', 'foto')->orderBy('id')->get();
 
 
         return json_encode([
@@ -54,12 +55,19 @@ class MasterItemsController extends Controller
 
     public function formSubmit(Request $request, $method, $id = 0)
     {
+        $request->validate([
+            'nama' => 'required',
+            'harga_beli' => 'required|integer',
+            'laba' => 'required|integer',
+            'supplier' => 'required',
+            'jenis' => 'required',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
         if ($method == 'new') {
             $data_item = new MasterItem;
-            $kode = MasterItem::count('id');
-            $kode = $kode + 1;
+            $kode = MasterItem::count('id') + 1;
             $kode = str_pad($kode, 5, '0', STR_PAD_LEFT);
-            // sleep(3);                                                                                                                                                                                                                                   
         } else {
             $data_item = MasterItem::find($id);
             $kode = $data_item->kode;
@@ -73,12 +81,38 @@ class MasterItemsController extends Controller
         $data_item->jenis = $request->jenis;
         $data_item->save();
 
+        if ($request->hasFile('foto')) {
+            if ($method != 'new' && $data_item->foto) {
+                $old_path = public_path($data_item->foto);
+                if (File::exists($old_path)) {
+                    File::delete($old_path);
+                }
+            }
+            
+            $file = $request->file('foto');
+            $filename = 'item_' . $data_item->id . '.' . $file->getClientOriginalName();
+            $destinationPath = public_path('uploads/master_items');
+            $file->move($destinationPath, $filename);
+            
+            $data_item->foto = '/uploads/master_items/' . $filename;
+            $data_item->save();
+        }
+
         return redirect('master-items');
     }
 
     public function delete($id)
     {
-        MasterItem::find($id)->delete();
+        $item = MasterItem::findorFail($id);
+
+        if ($item->foto) {
+            $path = public_path($item->foto);
+            if (File::exists($path)) {
+                File::delete($path);
+            }
+        }
+
+        $item->delete();
         return redirect('master-items');
     }
 

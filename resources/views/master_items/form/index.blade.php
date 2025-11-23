@@ -8,12 +8,9 @@
                 <a href="{{url('master-items')}}" class="btn btn-secondary">Kembali ke Daftar Item</a>
             </div>
             <div class="card">
-
-                @if($method == 'new')
-                <div class="card-header">Buat Master Item Baru</div>
-                @else
-                <div class="card-header">Edit Master Item</div>
-                @endif
+                <div class="card-header">
+                    {{ $method == 'new' ? 'Buat Master Item Baru' : 'Edit Master Item' }}
+                </div>
 
                 <div class="card-body">
                     @include('master_items.form.form')
@@ -22,6 +19,4 @@
         </div>
     </div>
 </div>
-@endsection
-@section('js')
 @endsection

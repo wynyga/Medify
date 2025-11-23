@@ -18,5 +18,6 @@ class MasterItem extends Model
         'laba',
         'jenis',
         'supplier',
+        'foto'
     ];
 }
