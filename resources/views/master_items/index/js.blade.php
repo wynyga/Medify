@@ -24,11 +24,13 @@
         
         $('#loading-filter').show();
         var dataTableObj = $('#table').DataTable();
+        
         var filter_kode = $('#filter-kode').val()
         var filter_nama = $('#filter-nama').val()
         var filter_harga_min = $('#filter-harga-min').val()
         var filter_harga_max = $('#filter-harga-max').val()
-        var filter_kategori = $('#filter-kategori').val();
+        var filter_kategori = $('#filter-kategori').val(); // Nilai diambil di sini
+
         dataTableObj.clear().draw();
 
         $.ajax({
@@ -36,7 +38,14 @@
             dataType: 'json',
             tryCount: 0,
             retryLimit: 3,
-            data: 'kode=' + filter_kode + '&nama=' + filter_nama + '&hargamin=' + filter_harga_min + '&hargamax=' + filter_harga_max,
+            // PERBAIKAN UTAMA ADA DI BARIS DI BAWAH INI
+            // Saya menambahkan "&kategori=" + filter_kategori agar dikirim ke server
+            data: 'kode=' + filter_kode + 
+                  '&nama=' + filter_nama + 
+                  '&hargamin=' + filter_harga_min + 
+                  '&hargamax=' + filter_harga_max + 
+                  '&kategori=' + filter_kategori, 
+            
             success: function(results) {
                 var data = results.data
 
@@ -51,9 +60,10 @@
                     var fotoHtml = item.foto 
                         ? '<img src="' + item.foto + '" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">'
                         : '-';
-                                        var kategoriHtml = '';
+                    
+                    // Logika Label Kategori (Badge)
+                    var kategoriHtml = '';
                     if (item.kategori && item.kategori.length > 0) {
-                        // Loop semua kategori item tersebut
                         item.kategori.forEach(function(kat) {
                             kategoriHtml += '<span class="badge bg-info text-dark mr-1 mb-1">' + kat.nama + '</span> ';
                         });
@@ -70,8 +80,6 @@
                     array_temp.push(harga_jual);
                     array_temp.push(item.supplier);
                     array_temp.push(html);
-
-
 
                     dataTableObj.row.add(array_temp).draw(true);
                 });

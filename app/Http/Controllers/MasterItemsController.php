@@ -21,40 +21,51 @@ class MasterItemsController extends Controller
 
     public function search(Request $request)
     {
+        // 1. Tangkap Input
         $kategori = $request->kategori;
         $kode = $request->kode;
         $nama = $request->nama;
         $hargamin = $request->hargamin;
         $hargamax = $request->hargamax;
+
+        // 2. Mulai Query dengan Eager Loading
         $data_search = MasterItem::with('kategori');
 
+        // 3. Filter Standar
         if (!empty($kode)) {
-            $data_search = $data_search->where('kode', $kode);
+            $data_search->where('kode', $kode);
         }
         
         if (!empty($nama)) {
-            $data_search = $data_search->where('nama', 'LIKE', '%' . $nama . '%');
+            $data_search->where('nama', 'LIKE', '%' . $nama . '%');
         }
 
         if (!empty($hargamin)) {
-            $data_search = $data_search->where('harga_beli', '>=', $hargamin);
+            $data_search->where('harga_beli', '>=', $hargamin);
         }
         
         if (!empty($hargamax)) {
-            $data_search = $data_search->where('harga_beli', '<=', $hargamax);
+            $data_search->where('harga_beli', '<=', $hargamax);
         }
+
+        // 4. FILTER KHUSUS KATEGORI (MANY-TO-MANY)
+        // Pastikan variabel $kategori tidak kosong sebelum menjalankan whereHas
         if (!empty($kategori)) {
-            $data_search = $data_search->whereHas('kategori', function($q) use ($kategori) {
+            $data_search->whereHas('kategori', function($q) use ($kategori) {
+                // Filter berdasarkan ID kategori yang dipilih
                 $q->where('kategori_items.id', $kategori);
             });
         }
 
-        $data_search = $data_search
+        // 5. Eksekusi Query
+        $result = $data_search
             ->select('id', 'kode', 'nama', 'jenis', 'harga_beli', 'laba', 'supplier', 'foto')
+            ->orderBy('id', 'desc') // Urutkan dari yang terbaru
             ->get();
+
         return response()->json([
             'status' => 200,
-            'data' => $data_search
+            'data' => $result
         ]);
     }
 
