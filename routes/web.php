@@ -30,6 +30,7 @@ Route::post('/master-items/form/{method}/{id?}', [App\Http\Controllers\MasterIte
 Route::get('/master-items/view/{kode}', [App\Http\Controllers\MasterItemsController::class, 'singleView']);
 Route::get('/master-items/delete/{id}', [App\Http\Controllers\MasterItemsController::class, 'delete']);
 Route::get('/master-items/update-random-data', [App\Http\Controllers\MasterItemsController::class, 'updateRandomData']);
+Route::get('master-items/export/excel', [App\Http\Controllers\MasterItemsController::class, 'exportExcel']);
 
 Route::get('kategori-items', [KategoriItemController::class, 'index']);
 Route::get('kategori-items/create', [KategoriItemController::class, 'create']); 
@@ -39,7 +40,3 @@ Route::post('kategori-items/update/{id}', [KategoriItemController::class, 'updat
 Route::get('kategori-items/delete/{id}', [KategoriItemController::class, 'delete']);
 Route::get('kategori-items/show/{id}', [KategoriItemController::class, 'show']);
 Route::get('kategori-items/print/{id}', [KategoriItemController::class, 'printPdf']);
-// //route groub
-// Route::prefix('/kategori-items')->group(function () {
-
-// }

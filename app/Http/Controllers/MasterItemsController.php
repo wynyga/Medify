@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterItem;
-use App\Models\KategoriItem; // ⬅ Tambahan penting
+use App\Models\KategoriItem; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
+use App\Exports\MasterItemExport; 
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class MasterItemsController extends Controller
 {
@@ -175,4 +178,13 @@ class MasterItemsController extends Controller
         $array = ['Obat','Alkes','Matkes','Umum','ATK'];
         return $array[rand(0,4)];
     }
+
+    public function exportExcel()
+    {
+        // Nama file saat didownload
+        $nama_file = 'laporan_master_items_' . date('Y-m-d_H-i-s') . '.xlsx';
+        
+        return Excel::download(new MasterItemExport, $nama_file);
+    }
+
 }
