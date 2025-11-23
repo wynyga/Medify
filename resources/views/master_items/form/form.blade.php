@@ -34,6 +34,19 @@
             <small class="text-muted">Biarkan kosong jika tidak ingin mengubah foto.</small>
         @endif
     </div>
+    
+    <div class="form-group">
+        <label>Kategori</label>
+        <select class="form-control" name="kategori[]" multiple>
+            @foreach($kategori as $k)
+                <option value="{{ $k->id }}"
+                    @if(!empty($item) && $item->kategori->contains($k->id)) selected @endif>
+                    {{ $k->nama }} ({{ $k->kode }})
+                </option>
+            @endforeach
+        </select>
+        <small class="text-muted">Tekan CTRL untuk memilih lebih dari satu kategori.</small>
+    </div>
 
     @php $selected = $item->supplier ?? ''; @endphp
     <div class="form-group">

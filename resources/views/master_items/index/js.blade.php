@@ -28,6 +28,7 @@
         var filter_nama = $('#filter-nama').val()
         var filter_harga_min = $('#filter-harga-min').val()
         var filter_harga_max = $('#filter-harga-max').val()
+        var filter_kategori = $('#filter-kategori').val();
         dataTableObj.clear().draw();
 
         $.ajax({
@@ -50,11 +51,21 @@
                     var fotoHtml = item.foto 
                         ? '<img src="' + item.foto + '" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">'
                         : '-';
+                                        var kategoriHtml = '';
+                    if (item.kategori && item.kategori.length > 0) {
+                        // Loop semua kategori item tersebut
+                        item.kategori.forEach(function(kat) {
+                            kategoriHtml += '<span class="badge bg-info text-dark mr-1 mb-1">' + kat.nama + '</span> ';
+                        });
+                    } else {
+                        kategoriHtml = '<span class="text-muted">-</span>';
+                    }
 
                     array_temp.push(fotoHtml);
                     array_temp.push(item.kode);
                     array_temp.push(item.nama);
                     array_temp.push(item.jenis);
+                    array_temp.push(kategoriHtml);
                     array_temp.push(item.harga_beli);
                     array_temp.push(harga_jual);
                     array_temp.push(item.supplier);

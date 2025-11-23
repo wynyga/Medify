@@ -18,6 +18,19 @@
                             <td>{{$data->nama}}</td>
                         </tr>
                         <tr>
+                            <th>Kategori</th>
+                            <td>:</td>
+                            <td>
+                                @if($data->kategori->count() > 0)
+                                    @foreach($data->kategori as $k)
+                                        <span class="badge badge-info">{{ $k->nama }}</span>
+                                    @endforeach
+                                @else
+                                    -
+                                @endif
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Harga Beli</th>
                             <td>:</td>
                             <td>{{$data->harga_beli}}</td>

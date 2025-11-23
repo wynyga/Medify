@@ -20,4 +20,10 @@ class MasterItem extends Model
         'supplier',
         'foto'
     ];
+
+    public function kategori()
+    {
+        return $this->belongsToMany(KategoriItem::class, 'item_kategori', 'master_item_id', 'kategori_item_id');
+    }
+
 }

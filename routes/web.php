@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\KategoriItemController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -21,13 +22,24 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
 Route::get('/master-items', [App\Http\Controllers\MasterItemsController::class, 'index']);
 Route::get('/master-items/search', [App\Http\Controllers\MasterItemsController::class, 'search']);
 Route::get('/master-items/form/{method}/{id?}', [App\Http\Controllers\MasterItemsController::class, 'formView']);
 Route::post('/master-items/form/{method}/{id?}', [App\Http\Controllers\MasterItemsController::class, 'formSubmit']);
-
 Route::get('/master-items/view/{kode}', [App\Http\Controllers\MasterItemsController::class, 'singleView']);
 Route::get('/master-items/delete/{id}', [App\Http\Controllers\MasterItemsController::class, 'delete']);
-
-
 Route::get('/master-items/update-random-data', [App\Http\Controllers\MasterItemsController::class, 'updateRandomData']);
+
+Route::get('kategori-items', [KategoriItemController::class, 'index']);
+Route::get('kategori-items/create', [KategoriItemController::class, 'create']); 
+Route::post('kategori-items/store', [KategoriItemController::class, 'store']);
+Route::get('kategori-items/edit/{id}', [KategoriItemController::class, 'edit']);
+Route::post('kategori-items/update/{id}', [KategoriItemController::class, 'update']);
+Route::get('kategori-items/delete/{id}', [KategoriItemController::class, 'delete']);
+Route::get('kategori-items/show/{id}', [KategoriItemController::class, 'show']);
+
+// //route groub
+// Route::prefix('/kategori-items')->group(function () {
+
+// }

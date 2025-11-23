@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasterItem;
+use App\Models\KategoriItem; // ⬅ Tambahan penting
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 
@@ -10,26 +11,45 @@ class MasterItemsController extends Controller
 {
     public function index()
     {
-        return view('master_items.index.index');
+        $kategori = \App\Models\KategoriItem::orderBy('nama')->get();
+
+        return view('master_items.index.index', compact('kategori'));
     }
 
     public function search(Request $request)
     {
+        $kategori = $request->kategori;
         $kode = $request->kode;
         $nama = $request->nama;
         $hargamin = $request->hargamin;
         $hargamax = $request->hargamax;
+        $data_search = MasterItem::with('kategori');
 
-        $data_search = MasterItem::query();
+        if (!empty($kode)) {
+            $data_search = $data_search->where('kode', $kode);
+        }
+        
+        if (!empty($nama)) {
+            $data_search = $data_search->where('nama', 'LIKE', '%' . $nama . '%');
+        }
 
-        if (!empty($kode)) $data_search = $data_search->where('kode', $kode);
-        if (!empty($nama)) $data_search = $data_search->where('nama', 'LIKE', '%' . $nama . '%');
-        if (!empty($hargamin)) $data_search = $data_search->where('harga_beli', '>=', $hargamin);
-        if (!empty($hargamax)) $data_search = $data_search->where('harga_beli', '<=', $hargamax);
-        $data_search = $data_search->select('kode', 'nama', 'jenis', 'harga_beli', 'laba', 'supplier', 'foto')->orderBy('id')->get();
+        if (!empty($hargamin)) {
+            $data_search = $data_search->where('harga_beli', '>=', $hargamin);
+        }
+        
+        if (!empty($hargamax)) {
+            $data_search = $data_search->where('harga_beli', '<=', $hargamax);
+        }
+        if (!empty($kategori)) {
+            $data_search = $data_search->whereHas('kategori', function($q) use ($kategori) {
+                $q->where('kategori_items.id', $kategori);
+            });
+        }
 
-
-        return json_encode([
+        $data_search = $data_search
+            ->select('id', 'kode', 'nama', 'jenis', 'harga_beli', 'laba', 'supplier', 'foto')
+            ->get();
+        return response()->json([
             'status' => 200,
             'data' => $data_search
         ]);
@@ -38,13 +58,16 @@ class MasterItemsController extends Controller
     public function formView($method, $id = 0)
     {
         if ($method == 'new') {
-            $item = [];
+            $item = new MasterItem();   
         } else {
-            $item = MasterItem::find($id);
+            $item = MasterItem::with('kategori')->find($id);
         }
-        $data['item'] = $item;
-        $data['method'] = $method;
-        return view('master_items.form.index', $data);
+
+        return view('master_items.form.index', [
+            'item' => $item,
+            'method' => $method,
+            'kategori' => KategoriItem::all() 
+        ]);
     }
 
     public function singleView($kode)
@@ -62,8 +85,10 @@ class MasterItemsController extends Controller
             'supplier' => 'required',
             'jenis' => 'required',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'kategori' => 'array'
         ]);
 
+       
         if ($method == 'new') {
             $data_item = new MasterItem;
             $kode = MasterItem::count('id') + 1;
@@ -73,6 +98,7 @@ class MasterItemsController extends Controller
             $kode = $data_item->kode;
         }
 
+      
         $data_item->nama = $request->nama;
         $data_item->harga_beli = $request->harga_beli;
         $data_item->laba = $request->laba;
@@ -81,6 +107,7 @@ class MasterItemsController extends Controller
         $data_item->jenis = $request->jenis;
         $data_item->save();
 
+      
         if ($request->hasFile('foto')) {
             if ($method != 'new' && $data_item->foto) {
                 $old_path = public_path($data_item->foto);
@@ -88,14 +115,19 @@ class MasterItemsController extends Controller
                     File::delete($old_path);
                 }
             }
-            
+
             $file = $request->file('foto');
-            $filename = 'item_' . $data_item->id . '.' . $file->getClientOriginalName();
+            $filename = 'item_' . $data_item->id . '_' . time() . '.' . $file->getClientOriginalExtension();
             $destinationPath = public_path('uploads/master_items');
             $file->move($destinationPath, $filename);
-            
+
             $data_item->foto = '/uploads/master_items/' . $filename;
             $data_item->save();
+        }
+
+      
+        if ($request->kategori) {
+            $data_item->kategori()->sync($request->kategori);
         }
 
         return redirect('master-items');
@@ -103,7 +135,7 @@ class MasterItemsController extends Controller
 
     public function delete($id)
     {
-        $item = MasterItem::findorFail($id);
+        $item = MasterItem::findOrFail($id);
 
         if ($item->foto) {
             $path = public_path($item->foto);
@@ -121,8 +153,7 @@ class MasterItemsController extends Controller
         $data = MasterItem::get();
         foreach($data as $item)
         {
-            $kode = $item->id;
-            $kode = str_pad($kode, 5, '0', STR_PAD_LEFT);
+            $kode = str_pad($item->id, 5, '0', STR_PAD_LEFT);
 
             $item->harga_beli = rand(100,1000000);
             $item->laba = rand(10,99);
@@ -136,14 +167,12 @@ class MasterItemsController extends Controller
     private function getRandomSupplier()
     {
         $array = ['Tokopaedi','Bukulapuk','TokoBagas','E Commurz','Blublu'];
-        $random = rand(0,4);
-        return $array[$random];
+        return $array[rand(0,4)];
     }
 
     private function getRandomJenis()
     {
         $array = ['Obat','Alkes','Matkes','Umum','ATK'];
-        $random = rand(0,4);
-        return $array[$random];
+        return $array[rand(0,4)];
     }
 }

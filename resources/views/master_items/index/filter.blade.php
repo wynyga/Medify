@@ -13,6 +13,19 @@
                 <input type="text" class="form-control" id="filter-nama">
             </div>
         </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label>Kategori</label>
+                <select class="form-control" id="filter-kategori">
+                    <option value="">-- Semua Kategori --</option>
+
+                    @foreach($kategori as $k)
+                        <option value="{{ $k->id }}">{{ $k->kode }} - {{ $k->nama }}</option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+
         <div class="col-2">
             <div class="form-group" id="filter-container">
                 <label>Harga Min</label>
