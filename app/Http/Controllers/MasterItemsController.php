@@ -56,7 +56,13 @@ class MasterItemsController extends Controller
     {
         if ($method == 'new') {
             $data_item = new MasterItem;
-            $kode = MasterItem::count('id');
+            //$kode = MasterItem::count('id');
+            $kode = MasterItem::orderBy('id', 'desc')->first();
+            if ($kode == null) {
+                $kode = 0;
+            } else {
+                $kode = $kode->id;
+            }
             $kode = $kode + 1;
             $kode = str_pad($kode, 5, '0', STR_PAD_LEFT);
             // sleep(3);                                                                                                                                                                                                                                   
